@@ -1,10 +1,12 @@
-# Onnimonni Kitsas
+# Onnimonni Homebrew taps
 
 ## How do I install these formulae?
 
-`brew install onnimonni/kitsas/<formula>`
-
-Or `brew tap onnimonni/kitsas` and then `brew install <formula>`.
+### Kitsas
+Install Kitsas, Finnish bookkeeping software for small organisations through my custom homebrew tap by running:
+```bash
+brew install onnimonni/tap/kitsas
+```
 
 ## Documentation
 
