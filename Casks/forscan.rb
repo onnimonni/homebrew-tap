@@ -81,7 +81,7 @@ cask "forscan" do
             ln -sf $usb_serial_device ~/.wine/dosdevices/com$com_device_index
     
             # Add Windows registries for the symlinked com ports
-            /opt/homebrew/bin/wine reg add 'HKLM\Software\Wine\Ports' /f /v com$com_device_index /t REG_SZ /d $usb_serial_device
+            /opt/homebrew/bin/wine reg add 'HKLM\\Software\\Wine\\Ports' /f /v com$com_device_index /t REG_SZ /d $usb_serial_device
             ((++com_device_index))
         done
     fi
