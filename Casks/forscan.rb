@@ -33,7 +33,7 @@ cask "forscan" do
       '/SP-',
       '/VERYSILENT',
       # Default installation path is C:/Program Files (x86)/FORScan/
-    ],
+    ]
   }
 
   forscan_launcher_content = <<~EOS
@@ -44,9 +44,23 @@ cask "forscan" do
     then 
         echo "Drivers have already been installed"
     else
-        osascript -e 'display dialog "Install USB Drivers and reboot your machine" with title "ERROR: USB FTDI drivers not found!" buttons {"Continue"} default button "Continue"'
+        # Create temporary file which will be cleared after reboot
+        touch /tmp/.not-rebooted-after-forscan-driver-installation
+        osascript -e 'display dialog "Install USB Drivers in the next step and reboot your machine" with title "ERROR: USB FTDI drivers not found!" buttons {"Continue"} default button "Continue"'
         open -a "FTDIUSBSerialDextInstaller.app"
+        exit 1
     fi
+    
+    # Check if system has not been booted after driver installation
+    if [ -f /tmp/.not-rebooted-after-forscan-driver-installation ]; then
+      osascript -e 'display dialog "You must reboot in order to use the OBD2 cable drivers" buttons {"Cancel", "Reboot"} default button "Reboot" cancel button "Cancel"'
+      RESULT=$?
+      if [ $RESULT -eq 0 ]; then
+        reboot
+      fi
+      exit 1
+    fi
+
     # Check all USB serial devices
     usb_serial_devices=($(ls /dev/cu.usbserial*))
     
