@@ -4,7 +4,7 @@ cask "forscan" do
   sha256 "15e717877acff5dafd2f6a36ce467f2a2e06e1cd0a61480994e9c6b2ed45f7be"
 
   url "https://forscan.org/download/FORScanSetup#{version}.release.exe"
-  name "Forscan"
+  name "FORScan"
   desc "Software scanner for Ford, Mazda, Lincoln and Mercury vehicles"
   homepage "https://forscan.org/home.html"
 
@@ -36,57 +36,48 @@ cask "forscan" do
     ]
   }
 
+  # Remember to escape the backslash properly inside this script \
   forscan_launcher_content = <<~EOS
-    #!/bin/zsh
+    #!/usr/bin/osascript
 
-    # Check that the drivers have been installed
-    if systemextensionsctl list | grep com.ftdi.vcp.dext
-    then 
-        echo "Drivers have already been installed"
-    else
-        # Create temporary file which will be cleared after reboot
-        touch /tmp/.not-rebooted-after-forscan-driver-installation
-        osascript -e 'display dialog "Install USB Drivers in the next step and reboot your machine" with title "ERROR: USB FTDI drivers not found!" buttons {"Continue"} default button "Continue"'
-        open -a "FTDIUSBSerialDextInstaller.app"
-        exit 1
-    fi
-    
-    # Check if system has not been booted after driver installation
-    if [ -f /tmp/.not-rebooted-after-forscan-driver-installation ]; then
-      osascript -e 'display dialog "You must reboot in order to use the OBD2 cable drivers" buttons {"Cancel", "Reboot"} default button "Reboot" cancel button "Cancel"'
-      RESULT=$?
-      if [ $RESULT -eq 0 ]; then
-        reboot
-      fi
-      exit 1
-    fi
+    -- Ensure that the USB drivers have been installed already
+    try
+      do shell script "systemextensionsctl list | grep com.ftdi.vcp.dext > /dev/null"
+    on error
+      -- Install the USB driver system extension
+      activate application "FTDIUSBSerialDextInstaller"
+      repeat until application "FTDIUSBSerialDextInstaller" is running
+        delay 0.1
+      end repeat
+      activate application "FTDIUSBSerialDextInstaller"
+      
+      tell application "System Events" to tell process "FTDIUSBSerialVCPDextInstaller"
+        click button "Install FTDI USB Serial Dext VCP" of window 1
+      end tell
+      quit application "FTDIUSBSerialDextInstaller"
+    end try
 
-    # Check all USB serial devices
-    usb_serial_devices=($(ls /dev/cu.usbserial*))
-    
-    # Connect the USB serial devices to Forscan
-    if [ ${#usb_serial_devices[@]} -eq 0 ]; then
-        osascript -e 'display dialog "Connect your USB cable to MacOS first and re-open Forscan" with title "ERROR: No USB serial cables were found!" buttons {"Continue anyway", "OK"} default button "OK" cancel button "Continue anyway"'
-        RESULT=$?
-        if [ $RESULT -eq 0 ]; then
-            exit $RESULT
-        else
-            echo "Continuing without USB devices"
-        fi
-    else
-        local com_device_index=1
-        for usb_serial_device in $usb_serial_devices; do
-            echo "USB Serial found: $usb_serial_device"
-            # Symlink the needed usb serial devices inside wine
-            ln -sf $usb_serial_device ~/.wine/dosdevices/com$com_device_index
-    
-            # Add Windows registries for the symlinked com ports
-            /opt/homebrew/bin/wine reg add 'HKLM\\Software\\Wine\\Ports' /f /v com$com_device_index /t REG_SZ /d $usb_serial_device
-            ((++com_device_index))
-        done
-    fi
-    
-    open -a "Wine Stable" "$HOME/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe"
+    -- Ensure that the USB device is connected and connect them to Wine
+    try
+      set serialDeviceLSOutput to (do shell script "ls /dev/cu.usbserial*")
+      set serialDeviceList to paragraphs of serialDeviceLSOutput
+      
+      repeat with listIndex from 1 to length of serialDeviceList
+        set serialDevicePath to item listIndex of serialDeviceList
+        set comPort to "com" & listIndex
+        
+        -- Symlink the found serial devices to Wine
+        do shell script "ln -sf " & serialDevicePath & " ~/.wine/dosdevices/" & comPort
+        
+        -- Add Windows registries for the symlinked com ports
+        do shell script "/opt/homebrew/bin/wine reg add 'HKLM\\\\Software\\\\Wine\\\\Ports' /f /v " & comPort & " /t REG_SZ /d " & serialDevicePath
+      end repeat
+    on error
+      display dialog "Connect your USB cable to MacOS first and re-open FORScan" with title "ERROR: No USB serial cables were found!" buttons {"Continue anyway", "Cancel"} default button "Cancel" cancel button "Cancel"
+    end try
+
+    -- Finally open the FORScan application itself through Wine
+    do shell script "open -a 'Wine Stable' \\"$HOME/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe\\""
   EOS
 
   # Source: https://www.artembutusov.com/how-to-wrap-wine-applications-into-macos-x-application-bundle/
