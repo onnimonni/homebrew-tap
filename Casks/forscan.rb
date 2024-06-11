@@ -1,4 +1,3 @@
-# Great example where to learn more: https://github.com/krehel/homebrew-cask/blob/cfa829188a9a67f3f10f023b148e0caa576fc7ba/Casks/g/ghidra.rb#L31
 cask "forscan" do
   version "2.3.59"
   sha256 "15e717877acff5dafd2f6a36ce467f2a2e06e1cd0a61480994e9c6b2ed45f7be"
