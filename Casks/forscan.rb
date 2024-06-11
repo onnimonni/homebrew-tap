@@ -9,37 +9,19 @@ cask "forscan" do
 
   livecheck do
     url "https://forscan.org/changes_history.html"
-    regex(/href=.*download\/FORScanSetup(\d+(?:\.\d+)+)\.release\.exe/)
+    regex(%r{href=.*download/FORScanSetup(\d+(?:\.\d+)+)\.release\.exe})
   end
 
+  auto_updates false
   depends_on macos: ">= :big_sur"
-  
   # Since Forscan is made for Windows we need to install Wine to run it
   depends_on cask: "wine-stable"
-
   # Virtual COM Drivers which work for vLinker FS USB OBD2 reader
   # They also should work for the OBDLink EX which is the other recommended cable
   # These are needed for the MacOS host machine to detect the OBD2 reader
   depends_on cask: "ftdi-vcp-driver"
 
-  # Runs the Forscan Windows installer
-  installer script: {
-    executable: "wine",
-    args: [
-      "#{staged_path}/FORScanSetup#{version}.release.exe",
-      # Windows EXE installer options here:
-      # Run the forscan without user input
-      '/SP-',
-      '/VERYSILENT',
-      # Default installation path is C:/Program Files (x86)/FORScan/
-    ]
-  }
-
-  uninstall delete: [
-    "~/.wine/drive_c/Program\ Files\ \(x86\)/FORScan",
-    "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start\ Menu/Programs/FORScan"
-  ]
-
+  app "FORScan.app"
   # Remember to escape the backslash properly inside this script \
   forscan_launcher_content = <<~EOS
     #!/usr/bin/osascript
@@ -54,7 +36,6 @@ cask "forscan" do
         delay 0.1
       end repeat
       activate application "FTDIUSBSerialDextInstaller"
-      
       tell application "System Events" to tell process "FTDIUSBSerialVCPDextInstaller"
         click button "Install FTDI USB Serial Dext VCP" of window 1
       end tell
@@ -65,14 +46,11 @@ cask "forscan" do
     try
       set serialDeviceLSOutput to (do shell script "ls /dev/cu.usbserial*")
       set serialDeviceList to paragraphs of serialDeviceLSOutput
-      
       repeat with listIndex from 1 to length of serialDeviceList
         set serialDevicePath to item listIndex of serialDeviceList
         set comPort to "com" & listIndex
-        
         -- Symlink the found serial devices to Wine
         do shell script "ln -sf " & serialDevicePath & " ~/.wine/dosdevices/" & comPort
-        
         -- Add Windows registries for the symlinked com ports
         do shell script "/opt/homebrew/bin/wine reg add 'HKLM\\\\Software\\\\Wine\\\\Ports' /f /v " & comPort & " /t REG_SZ /d " & serialDevicePath
       end repeat
@@ -86,29 +64,42 @@ cask "forscan" do
 
   # Source: https://www.artembutusov.com/how-to-wrap-wine-applications-into-macos-x-application-bundle/
   forscan_plist_content = <<~EOS
-  <?xml version="1.0" encoding="UTF-8"?>
-  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-  <plist version="1.0">
-    <dict>
-      <key>CFBundleExecutable</key>
-      <string>FORScan</string>
-      <key>CFBundleGetInfoString</key>
-      <string>FORScan</string>
-      <key>CFBundleIconFile</key>
-      <string>AppIcon</string>
-      <key>CFBundleIconName</key>
-      <string>AppIcon</string>
-      <key>CFBundleName</key>
-      <string>FORScan</string>
-      <key>CFBundlePackageType</key>
-      <string>APPL</string>
-      <key>CFBundleSignature</key>
-      <string>4242</string>
-      <key>NSHighResolutionCapable</key>
-      <true/>
-    </dict>
-  </plist>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+      <dict>
+        <key>CFBundleExecutable</key>
+        <string>FORScan</string>
+        <key>CFBundleGetInfoString</key>
+        <string>FORScan</string>
+        <key>CFBundleIconFile</key>
+        <string>AppIcon</string>
+        <key>CFBundleIconName</key>
+        <string>AppIcon</string>
+        <key>CFBundleName</key>
+        <string>FORScan</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleSignature</key>
+        <string>4242</string>
+        <key>NSHighResolutionCapable</key>
+        <true/>
+      </dict>
+    </plist>
   EOS
+
+  # Runs the Forscan Windows installer
+  installer script: {
+    executable: "wine",
+    args:       [
+      "#{staged_path}/FORScanSetup#{version}.release.exe",
+      # Windows EXE installer options here:
+      # Run the forscan without user input
+      "/SP-",
+      "/VERYSILENT",
+      # Default installation path is C:/Program Files (x86)/FORScan/
+    ],
+  }
 
   # Create the Forscan.app using ducktape
   preflight do
@@ -119,18 +110,8 @@ cask "forscan" do
     File.write "#{staged_path}/FORScan.app/Contents/Resources/Info.plist", forscan_plist_content
   end
 
-  
-  # TODO: App icon is not working
-  #postflight do
-    ## Extract the application image with Wine
-    ## Source: https://unix.stackexchange.com/a/510631
-    ## TODO: Find a better way to find wine than to hardcode it like this
-    #system "/opt/homebrew/bin/wine winemenubuilder -t ~/.wine/drive_c/ProgramData/Microsoft/Windows/Start\\ Menu/Programs/FORScan/FORScan.lnk /Applications/FORScan.app/Contents/Resources/image.iconset/icon_128x128.png"
-    ## Create icns file to show the image
-    #system "iconutil -c icns /Applications/FORScan.app/Contents/Resources/image.iconset --output /Applications/FORScan.app/Contents/Resources/AppIcon.icns"
-  #end
-  
-  auto_updates false
-
-  app "FORScan.app"
+  uninstall delete: [
+    "~/.wine/drive_c/Program Files (x86)/FORScan",
+    "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start Menu/Programs/FORScan",
+  ]
 end
