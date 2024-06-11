@@ -1,6 +1,6 @@
 cask "forscan" do
-  version "2.3.59"
-  sha256 "15e717877acff5dafd2f6a36ce467f2a2e06e1cd0a61480994e9c6b2ed45f7be"
+  version "2.3.60"
+  sha256 "f7e0bd5416caa29bb74d1cf90336c703689fe6091149b2c3342471e3a35b1de5"
 
   url "https://forscan.org/download/FORScanSetup#{version}.release.exe"
   name "FORScan"
