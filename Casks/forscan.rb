@@ -36,6 +36,11 @@ cask "forscan" do
     ]
   }
 
+  uninstall delete: [
+    "~/.wine/drive_c/Program\ Files\ \(x86\)/FORScan",
+    "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start\ Menu/Programs/FORScan"
+  ]
+
   # Remember to escape the backslash properly inside this script \
   forscan_launcher_content = <<~EOS
     #!/usr/bin/osascript
@@ -125,10 +130,6 @@ cask "forscan" do
     ## Create icns file to show the image
     #system "iconutil -c icns /Applications/FORScan.app/Contents/Resources/image.iconset --output /Applications/FORScan.app/Contents/Resources/AppIcon.icns"
   #end
-
-  # In case wine was installed without FORScan
-  zap trash: "~/.wine/drive_c/Program\ Files\ \(x86\)/FORScan"
-  zap trash: "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start\ Menu/Programs/FORScan"
   
   auto_updates false
 
