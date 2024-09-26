@@ -1,6 +1,6 @@
 cask "forscan" do
-  version "2.3.60"
-  sha256 "f7e0bd5416caa29bb74d1cf90336c703689fe6091149b2c3342471e3a35b1de5"
+  version "2.3.62"
+  sha256 "fad11dd5f91a86961b2435798eeae8241dd3a69c92808f5b9eedfe35eac2a77c"
 
   url "https://forscan.org/download/FORScanSetup#{version}.release.exe"
   name "FORScan"
@@ -110,6 +110,7 @@ cask "forscan" do
     File.write "#{staged_path}/FORScan.app/Contents/Resources/Info.plist", forscan_plist_content
   end
 
+  # TODO: Maybe this could use the "unins000.exe" inside FORScan instead. The delete key requires password
   uninstall delete: [
     "~/.wine/drive_c/Program Files (x86)/FORScan",
     "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start Menu/Programs/FORScan",
