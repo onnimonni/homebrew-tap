@@ -1,6 +1,6 @@
 cask "ft-prog" do
   version "3.12.55.667"
-  sha256 "fad11dd5f91a86961b2435798eeae8241dd3a69c92808f5b9eedfe35eac2a77c"
+  sha256 "129433442b62f5fd5cdb9a2234c126cb09080fb19074e5c1d7c52a93b9312729"
 
   # TODO: the uploads/2024/11 will probably not work with our livecheck
   url "https://ftdichip.com/wp-content/uploads/2024/11/FT_Prog_v#{version}-Installer.zip"
