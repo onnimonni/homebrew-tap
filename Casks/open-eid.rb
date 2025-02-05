@@ -12,16 +12,16 @@ cask "open-eid" do
     regex(%r{href=.*/Open-EID_(\d+(?:\.\d+)+)\.dmg})
   end
 
-  depends_on macos: ">= :big_sur"
   auto_updates true
+  depends_on macos: ">= :big_sur"
 
   pkg "Open-EID.pkg"
 
   # Homebrew stores the uninstall script from Open-EID_#{version}.dmg in
   # /opt/homebrew/Caskroom/open-eid/#{version}/uninstall.sh
   uninstall script: {
-    executable: 'uninstall.sh',
+    executable: "uninstall.sh",
     input:      ["y\n"],
-    sudo:       true
+    sudo:       true,
   }
 end
