@@ -9,7 +9,7 @@ cask "open-eid" do
 
   livecheck do
     url "https://www.id.ee/en/article/install-id-software/"
-    regex(%r{href=.*?/Open-EID_(\d+(?:\.\d+)+)\.dmg}i)
+    regex(%r{href=.*/Open-EID_(\d+(?:\.\d+)+)\.dmg})
   end
 
   depends_on macos: ">= :big_sur"
@@ -17,6 +17,11 @@ cask "open-eid" do
 
   pkg "Open-EID.pkg"
 
-  # Documentation: https://docs.brew.sh/Cask-Cookbook#stanza-zap
-  zap trash: ""
+  # Homebrew stores the uninstall script from Open-EID_#{version}.dmg in
+  # /opt/homebrew/Caskroom/open-eid/#{version}/uninstall.sh
+  uninstall script: {
+    executable: 'uninstall.sh',
+    input:      ["y\n"],
+    sudo:       true
+  }
 end
