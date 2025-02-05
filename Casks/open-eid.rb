@@ -13,9 +13,9 @@ cask "open-eid" do
   end
 
   depends_on macos: ">= :big_sur"
-  auto_updates false
+  auto_updates true
 
-  app "EstEIDTokenApp.app"
+  pkg "Open-EID.pkg"
 
   # Documentation: https://docs.brew.sh/Cask-Cookbook#stanza-zap
   zap trash: ""
