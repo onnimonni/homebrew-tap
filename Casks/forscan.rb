@@ -59,7 +59,7 @@ cask "forscan" do
     end try
 
     -- Finally open the FORScan application itself through Wine
-    do shell script "open -a 'Wine Stable' \\"$HOME/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe\\""
+    do shell script "open -a 'Wine Stable' '~/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe'"
   EOS
 
   # Source: https://www.artembutusov.com/how-to-wrap-wine-applications-into-macos-x-application-bundle/
