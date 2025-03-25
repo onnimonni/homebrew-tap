@@ -2,13 +2,6 @@
 
 ## How do I install these Casks?
 
-### Kitsas
-Install Kitsas, Finnish bookkeeping software for small organisations through my custom homebrew tap by running:
-
-```bash
-brew install --cask onnimonni/tap/kitsas
-```
-
 ### Forscan
 Install Forscan, Diagnostics software for Ford, Mazda, Lincoln and Mercury vehicles.
 
@@ -32,6 +25,20 @@ After the version change is merged you can update your Forscan by running this:
 ```sh
 brew update && brew upgrade onnimonni/tap/forscan
 ```
+
+### Kitsas
+Install Kitsas, Finnish bookkeeping software for small organisations through my custom homebrew tap by running:
+
+```bash
+brew install --cask onnimonni/tap/kitsas
+```
+
+#### Updating Kitsas
+Similiarly as with Homebrew:
+```sh
+brew bump-cask-pr --no-audit --version $(brew livecheck kitsas --json | jq -r '.[0].version.latest') onnimonni/tap/kitsas
+```
+
 
 ## Documentation
 
