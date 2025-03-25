@@ -1,6 +1,6 @@
 cask "kitsas" do
-  version "5.5.2"
-  sha256 "100d47acb35a32482afcbc7bf9d435ea813296c853b6f7b5440869c4329b7827"
+  version "5.9"
+  sha256 "10551f3640e0adcdc8177a6980540be8f20913c70a8e56f56dd55abf748df7aa"
 
   url "https://github.com/petriaarnio/kitupiikki/releases/download/mac-v#{version}/Kitsas-#{version}.dmg"
   name "Kitsas"
