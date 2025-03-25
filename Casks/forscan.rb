@@ -52,14 +52,14 @@ cask "forscan" do
         -- Symlink the found serial devices to Wine
         do shell script "ln -sf " & serialDevicePath & " ~/.wine/dosdevices/" & comPort
         -- Add Windows registries for the symlinked com ports
-        do shell script "/opt/homebrew/bin/wine reg add 'HKLM\\\\Software\\\\Wine\\\\Ports' /f /v " & comPort & " /t REG_SZ /d " & serialDevicePath
+        do shell script "#{HOMEBREW_PREFIX}/bin/wine reg add 'HKLM\\\\Software\\\\Wine\\\\Ports' /f /v " & comPort & " /t REG_SZ /d " & serialDevicePath
       end repeat
     on error
       display dialog "Connect your USB cable to MacOS first and re-open FORScan" with title "ERROR: No USB serial cables were found!" buttons {"Continue anyway", "Cancel"} default button "Cancel" cancel button "Cancel"
     end try
 
     -- Finally open the FORScan application itself through Wine
-    do shell script "open -a 'Wine Stable' '~/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe'"
+    do shell script "#{HOMEBREW_PREFIX}/bin/wine $HOME'/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe'"
   EOS
 
   # Source: https://www.artembutusov.com/how-to-wrap-wine-applications-into-macos-x-application-bundle/
