@@ -61,7 +61,7 @@ cask "forscan" do
       File.write(file_path, File.read(file_path).gsub(old_text, new_text))
     end
 
-    FileUtils.cp_r File.expand_path("#{__dir__}/../#{app}") "#{staged_path}/"
+    FileUtils.cp_r File.expand_path("#{__dir__}/../#{app}"), "#{staged_path}/"
 
     # By default the launcher works only on Apple Silicon Macs
     # This replaces the homebrew prefix in wine path for also Intel Macs
