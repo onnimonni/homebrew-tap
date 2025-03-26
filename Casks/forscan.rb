@@ -67,24 +67,24 @@ cask "forscan" do
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
-      <dict>
-        <key>CFBundleExecutable</key>
-        <string>FORScan</string>
-        <key>CFBundleGetInfoString</key>
-        <string>FORScan</string>
-        <key>CFBundleIconFile</key>
-        <string>AppIcon</string>
-        <key>CFBundleIconName</key>
-        <string>AppIcon</string>
-        <key>CFBundleName</key>
-        <string>FORScan</string>
-        <key>CFBundlePackageType</key>
-        <string>APPL</string>
-        <key>CFBundleSignature</key>
-        <string>4242</string>
-        <key>NSHighResolutionCapable</key>
-        <true/>
-      </dict>
+    <dict>
+      <key>CFBundleExecutable</key>
+      <string>FORScan</string>
+      <key>CFBundleIconFile</key>
+      <string>AppIcon</string>
+      <key>CFBundleIconName</key>
+      <string>AppIcon</string>
+      <key>CFBundleName</key>
+      <string>FORScan</string>
+      <key>CFBundlePackageType</key>
+      <string>APPL</string>
+      <key>CFBundleShortVersionString</key>
+      <string>#{version}</string>
+      <key>CFBundleSupportedPlatforms</key>
+      <array>
+        <string>MacOSX</string>
+      </array>
+    </dict>
     </plist>
   EOS
 
@@ -103,11 +103,32 @@ cask "forscan" do
 
   # Create the Forscan.app using ducktape
   preflight do
+    # Create the app bundle structure
     FileUtils.mkdir_p "#{staged_path}/FORScan.app/Contents/MacOS"
-    File.write "#{staged_path}/FORScan.app/Contents/MacOS/FORScan", forscan_launcher_content
-    FileUtils.chmod 0755, "#{staged_path}/FORScan.app/Contents/MacOS/FORScan"
-    FileUtils.mkdir_p "#{staged_path}/FORScan.app/Contents/Resources/image.iconset"
-    File.write "#{staged_path}/FORScan.app/Contents/Resources/Info.plist", forscan_plist_content
+    Dir.chdir("#{staged_path}/FORScan.app/Contents") do
+      # Create the executable script
+      File.write "MacOS/FORScan", forscan_launcher_content
+      FileUtils.chmod 0755, "MacOS/FORScan"
+
+      # Create the Info.plist
+      File.write "Info.plist", forscan_plist_content
+    end
+  end
+
+  # The shortcut in drive_c is not available preflight
+  # because the installer.exe has not been used yet
+  postflight do
+    # Create the FORScan.app icon
+    FileUtils.mkdir "#{staged_path}/FORScan.app/Contents/Resources"
+    Dir.chdir("#{staged_path}/FORScan.app/Contents/Resources") do
+      # Use Wine utility to extract icon from the Windows shortcut
+      win_shortcut = '~/.wine/drive_c/ProgramData/Microsoft/Windows/Start\ Menu/Programs/FORScan/FORScan.lnk'
+      `#{HOMEBREW_PREFIX}/bin/wine winemenubuilder -t #{win_shortcut} AppIcon.png`
+      # Convert the icon using sips which is always available on MacOS
+      `sips -s format icns AppIcon.png -o AppIcon.icns`
+    end
+    # Force MacOS to refresh the icon cache
+    FileUtils.touch "#{staged_path}/FORScan.app"
   end
 
   # TODO: Maybe this could use the "unins000.exe" inside FORScan instead. The delete key requires password
