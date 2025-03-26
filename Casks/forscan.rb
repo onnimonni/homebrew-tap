@@ -74,6 +74,16 @@ cask "forscan" do
     end
   end
 
+  # This happens in every upgrade because homebrew audit verification is stupid:
+  # - installer and pkg stanzas require an uninstall stanza
+  # - only a single zap stanza is allowed
+  uninstall trash: [
+    # Remove the com ports created by the launcher
+    "~/.wine/dosdevices/com*",
+    "~/.wine/drive_c/Program Files (x86)/FORScan",
+    "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start Menu/Programs/FORScan",
+  ]
+
   # This currently opens interactive dialog which asks if user wants to remove or not
   zap script: {
     executable:   wine_executable,
@@ -84,10 +94,4 @@ cask "forscan" do
       # FIXME: The unins000.exe doesn't have flags which would allow silent uninstall
     ],
   }
-  zap trash: [
-    # Remove the com ports created by the launcher
-    "~/.wine/dosdevices/com*",
-    "~/.wine/drive_c/Program Files (x86)/FORScan",
-    "~/.wine/drive_c/ProgramData/Microsoft/Windows/Start Menu/Programs/FORScan",
-  ]
 end
