@@ -9,7 +9,6 @@ cask "forscan" do
   end
 
   url "https://forscan.org/download/FORScanSetup#{version}.release.exe"
-  # Also store the names into variables for easier reuse later
   name(name = "FORScan")
   desc "Software scanner for Ford, Mazda, Lincoln and Mercury vehicles"
   homepage "https://forscan.org/home.html"
@@ -31,7 +30,7 @@ cask "forscan" do
   # These are needed for the MacOS host machine to detect the OBD2 reader
   depends_on cask: "ftdi-vcp-driver"
 
-  app "#{name}.app"
+  app(app = "#{name}.app")
   # Intel Macs have homebrew in:   /usr/local/bin/brew
   # Apple Silicon Macs have it in: /opt/homebrew/bin/brew
   # This uses correct Wine path for both systems
@@ -57,16 +56,22 @@ cask "forscan" do
   }
 
   preflight do
-    def replace_in_file(file_path, old_text, new_text)
-      File.write(file_path, File.read(file_path).gsub(old_text, new_text))
-    end
-
+    # Creates the FORScan.app wrapper into the system
     FileUtils.cp_r File.expand_path("#{__dir__}/../#{app}"), "#{staged_path}/"
 
-    # By default the launcher works only on Apple Silicon Macs
-    # This replaces the homebrew prefix in wine path for also Intel Macs
-    launcher = "#{staged_path}/#{app}/Contents/MacOS/launcher.applescript"
-    replace_in_file(launcher, "/opt/homebrew/bin/wine", wine_executable)
+    # Replace the wine path to match current system to support Intel Macs as well
+    launcher = "#{staged_path}/#{app}/Contents/MacOS/#{name}"
+    File.write(launcher, File.read(launcher).gsub("/opt/homebrew/bin/wine", wine_executable))
+  end
+
+  # Casks don't support assertions so we will use postflight instead
+  postflight do
+    unless File.exist? "#{Dir.home}/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe"
+      raise "FORScan.exe is missing from default location!"
+    end
+    if `defaults read /Applications/#{app}/Contents/Info CFBundleName`.strip != name
+      raise "FORScan.app is not installed properly!"
+    end
   end
 
   # This currently opens interactive dialog which asks if user wants to remove or not
