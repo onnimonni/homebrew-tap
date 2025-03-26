@@ -16,7 +16,7 @@ jobs:
         run: ./FORScan.app/Contents/MacOS/launcher.applescript syntax-check
 
       - name: Syntax check the Info.plist
-        run: plutil FORScan.app/Info.plist
+        run: plutil FORScan.app/Contents/Info.plist
 
       - name: Set up Homebrew
         id: set-up-homebrew
