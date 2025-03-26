@@ -1,0 +1,49 @@
+#!/usr/bin/env osascript
+on run args
+
+    -----------------------------------------
+    -- Useless block for just syntax-check --
+    -----------------------------------------
+    if (args as text) is "syntax-check" then
+        return
+    end if
+
+    ---------------------------------------
+    -- Start the FORScan launcher script --
+    ---------------------------------------
+
+    -- Ensure that the USB drivers have been installed already
+    try
+        do shell script "systemextensionsctl list | grep com.ftdi.vcp.dext > /dev/null"
+    on error
+        -- Install the USB driver system extension
+        activate application "FTDIUSBSerialDextInstaller"
+        repeat until application "FTDIUSBSerialDextInstaller" is running
+            delay 0.1
+        end repeat
+        activate application "FTDIUSBSerialDextInstaller"
+        tell application "System Events" to tell process "FTDIUSBSerialVCPDextInstaller"
+            click button "Install FTDI USB Serial Dext VCP" of window 1
+        end tell
+        quit application "FTDIUSBSerialDextInstaller"
+    end try
+
+    -- Ensure that the USB device is connected and connect them to Wine
+    try
+        set serialDeviceLSOutput to (do shell script "ls /dev/cu.usbserial*")
+        set serialDeviceList to paragraphs of serialDeviceLSOutput
+        repeat with listIndex from 1 to length of serialDeviceList
+            set serialDevicePath to item listIndex of serialDeviceList
+            set comPort to "com" & listIndex
+            -- Symlink the found serial devices to Wine
+            do shell script "ln -sf " & serialDevicePath & " ~/.wine/dosdevices/" & comPort
+            -- Add Windows registries for the symlinked com ports
+            do shell script "/opt/homebrew/bin/wine reg add 'HKLM\\\\Software\\\\Wine\\\\Ports' /f /v " & comPort & " /t REG_SZ /d " & serialDevicePath
+        end repeat
+    on error
+        display dialog "Connect your USB cable to MacOS first and re-open FORScan" with title "ERROR: No USB serial cables were found!" buttons {"Continue anyway", "Cancel"} default button "Cancel" cancel button "Cancel"
+    end try
+
+    -- Finally open the FORScan application itself through Wine
+    do shell script "/opt/homebrew/bin/wine $HOME'/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe'"
+end run
