@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Syntax check the applescript launcher
-        run: osascript FORScan.app/Contents/MacOS/launcher.applescript syntax-check
+      - name: Syntax check the applescript launcher and ensure it's executable
+        run: ./FORScan.app/Contents/MacOS/launcher.applescript syntax-check
 
       - name: Syntax check the Info.plist
         run: plutil FORScan.app/Info.plist
