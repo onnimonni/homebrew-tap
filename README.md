@@ -52,3 +52,6 @@ brew bump-cask-pr --no-audit --version $(brew livecheck kitsas --json | jq -r '.
 ## Documentation
 
 `brew help`, `man brew` or check [Homebrew's documentation](https://docs.brew.sh).
+
+## License
+GPLv3
