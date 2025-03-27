@@ -23,8 +23,8 @@ jobs:
       - name: Check if new version is available
         id: new_version
         run: |
-          VERSION="$(brew livecheck --cask --quiet --newer-only --full-name --json --tap=${{ github.repository }} ${{ matrix.brew_cask }} | jq -r '.[0].version.latest//empty')"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(brew livecheck --cask --quiet --newer-only --full-name --json --tap="${{ github.repository }}" "${{ matrix.brew_cask }}" | jq -r '.[0].version.latest//empty')
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - if: steps.new_version.outputs.VERSION != ''
         name: Update Homebrew Cask ${{ matrix.brew_cask }} to latest version
