@@ -1,5 +1,3 @@
-# This installs a Windows Program FORScan into MacOS
-# It uses Wine and creates a MacOS app bundle wrapper in pretty unorthodox way
 cask "forscan" do
   version "2.3.65"
 
@@ -91,7 +89,6 @@ cask "forscan" do
     args:         [
       # Homebrew escapes special characters here so ~ or $HOME won't work
       "#{Dir.home}/.wine/drive_c/Program Files (x86)/FORScan/unins000.exe",
-      # FIXME: The unins000.exe doesn't have flags which would allow silent uninstall
     ],
   }
 end
