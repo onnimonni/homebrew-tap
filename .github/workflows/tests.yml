@@ -41,7 +41,7 @@ jobs:
       - run: brew tap
 
       # Tap allows custom URL as 3rd parameter and knows how to use file paths
-      - run: brew tap onnimonni-test/tap $(pwd)
+      - run: brew tap onnimonni-test/tap "$(pwd)"
       
       # Should test the command that we actually want to test and advertise
       - run: brew install --no-quarantine --cask wine-stable onnimonni/tap/forscan
