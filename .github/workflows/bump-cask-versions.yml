@@ -1,4 +1,4 @@
-name: Stale pull request handler
+name: Bump Homebrew Cask versions
 on:
   schedule:
     # Every third day at 8:00 on GMT+2
@@ -7,9 +7,6 @@ on:
 
 permissions:
   pull-requests: write
-
-env:
-  BREW_TAP: onnimonni/tap
   
 jobs:
   bump-cask-versions:
@@ -20,13 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tap this repository
-        run: brew tap ${{ env.BREW_TAP }} .
+      - name: Tap this repository from local files
+        run: brew tap ${{ github.repository }} .
 
       - name: Check if new version is available
         id: new_version
         run: |
-          VERSION="$(brew livecheck --cask --quiet --newer-only --full-name --json --tap=${{ env.BREW_TAP }} ${{ matrix.brew_cask }} | jq -r '.[0].version.latest//empty')"
+          VERSION="$(brew livecheck --cask --quiet --newer-only --full-name --json --tap=${{ github.repository }} ${{ matrix.brew_cask }} | jq -r '.[0].version.latest//empty')"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - if: steps.new_version.outputs.VERSION != ''
