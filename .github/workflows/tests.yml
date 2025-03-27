@@ -37,6 +37,7 @@ jobs:
 
       - run: brew test-bot --only-tap-syntax
       
-      # Steps above tap onnimonni/tap so we have forscan available here
+      # Steps above tap this repo locally so we have forscan available here
       # Test the command that we actually want to test and advertise
       - run: brew install --no-quarantine --cask wine-stable forscan
+        if: contains(github.event.head_commit.modified, 'Casks/forscan.rb')

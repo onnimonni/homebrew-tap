@@ -1,0 +1,38 @@
+name: Bump Homebrew Cask versions
+on:
+  schedule:
+    # Every third day at 8:00 on GMT+2
+    - cron: '0 6 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  
+jobs:
+  bump-cask-versions:
+    strategy:
+      matrix:
+        brew_cask: [kitsas, forscan]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tap this repository from local files
+        run: brew tap ${{ github.repository }} .
+
+      - name: Check if new version is available
+        id: new_version
+        run: |
+          VERSION=$(brew livecheck --cask --quiet --newer-only --full-name --json --tap="${{ github.repository }}" "${{ matrix.brew_cask }}" | jq -r '.[0].version.latest//empty')
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - if: steps.new_version.outputs.VERSION != ''
+        name: Update Homebrew Cask ${{ matrix.brew_cask }} to latest version
+        run: |
+          brew bump-cask-pr \
+          --no-fork --no-audit --no-browse \
+          --version=${{ steps.new_version.outputs.VERSION }} \
+          ${{ matrix.brew_cask }}
+        env:
+          # Automatic token from Github when using permissions: directive
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
