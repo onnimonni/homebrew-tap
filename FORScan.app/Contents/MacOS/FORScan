@@ -44,6 +44,9 @@ on run args
         display dialog "Connect your USB cable to MacOS first and re-open FORScan" with title "ERROR: No USB serial cables were found!" buttons {"Continue anyway", "Cancel"} default button "Cancel" cancel button "Cancel"
     end try
 
-    -- Finally open the FORScan application itself through Wine
-    do shell script "/opt/homebrew/bin/wine $HOME'/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe'"
+    -- Finally open the FORScan application itself without blocking through Wine
+	do shell script "nohup /opt/homebrew/bin/wine \"$HOME/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe\" >/dev/null 2>&1 &"
+	return -- let the script end, which dismisses the dialog
+    -- Note: The "nohup" command is used to run the FORScan application in the background
+    --       without blocking the script, allowing the dialog to be dismissed immediately.
 end run
