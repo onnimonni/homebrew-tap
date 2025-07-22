@@ -44,9 +44,30 @@ on run args
         display dialog "Connect your USB cable to MacOS first and re-open FORScan" with title "ERROR: No USB serial cables were found!" buttons {"Continue anyway", "Cancel"} default button "Cancel" cancel button "Cancel"
     end try
 
-    -- Finally open the FORScan application itself without blocking through Wine
-	do shell script "nohup /opt/homebrew/bin/wine \"$HOME/.wine/drive_c/Program Files (x86)/FORScan/FORScan.exe\" >/dev/null 2>&1 &"
-	return -- let the script end, which dismisses the dialog
-    -- Note: The "nohup" command is used to run the FORScan application in the background
-    --       without blocking the script, allowing the dialog to be dismissed immediately.
+    -- Path to the FORScan executable inside the default WINEPREFIX
+    set exePath to (POSIX path of (path to home folder)) & ".wine/drive_c/Program Files (x86)/FORScan/FORScan.exe"
+
+    -- Prefer the Wine Stable.app bundle; fall back to a per‑user helper script
+    set wineAppExists to (do shell script "test -d '/Applications/Wine Stable.app' && echo yes || echo no") is "yes"
+
+    if wineAppExists then
+        -- Launch via the bundle; foreground activation happens automatically
+        do shell script "/usr/bin/open -na 'Wine Stable' --args " & quoted form of exePath
+    else
+        -- Create a user-generated .command helper (avoids Gatekeeper quarantine)
+        set helperPath to (POSIX path of (path to home folder)) & "forlaunch.command"
+        set createScriptCmd to "cat > " & quoted form of helperPath & " <<'EOF'\n" & ¬
+            "#!/bin/bash\n" & ¬
+            "cd \"$HOME/.wine/drive_c/Program Files (x86)/FORScan\"\n" & ¬
+            "/opt/homebrew/bin/wine FORScan.exe\n" & ¬
+            "EOF\n" & ¬
+            "chmod +x " & quoted form of helperPath
+        do shell script createScriptCmd
+
+        -- Launch the helper hidden so no Terminal window appears
+        do shell script "/usr/bin/open -gj -a Terminal " & quoted form of helperPath
+    end if
+
+	return
+
 end run
