@@ -48,9 +48,7 @@ on run args
     set exePath to (POSIX path of (path to home folder)) & ".wine/drive_c/Program Files (x86)/FORScan/FORScan.exe"
 
     -- Prefer the Wine Stable.app bundle; fall back to a per‑user helper script
-    set wineAppExists to (do shell script "test -d '/Applications/Wine Stable.app' && echo yes || echo no") is "yes"
-
-    if wineAppExists then
+    if exists application file "Wine Stable.app" of folder "Applications" of startup disk then
         -- Launch via the bundle; foreground activation happens automatically
         do shell script "/usr/bin/open -na 'Wine Stable' --args " & quoted form of exePath
     else
