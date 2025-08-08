@@ -19,6 +19,12 @@ brew install --no-quarantine --cask wine-stable onnimonni/tap/forscan
 > Even though `onnimonni/tap/forscan` requires Wine Stable.
 > Because of this it's easiest to install this by running them both here
 
+#### FTDI Virtual COM Port Driver (Driver for USB to OBD2 Cable)
+
+- The `forscan` cask includes the `ftdi-vcp-driver` cask, and automates installation of the driver, which is required to use USB to OBD2 cables. FORScan recommmends the following cables, which work with this driver:
+    - vLinker FS USB OBD2
+    - OBDLink EX
+
 #### How do I delete FORScan completely?
 
 ```sh
