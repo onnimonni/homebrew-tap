@@ -1,8 +1,8 @@
 cask "forscan" do
-  version "2.3.67"
+  version "2.3.68"
 
   if OS.mac?
-    sha256 "a0ff22ba49c6bf26c6212838590b093c3f2bd92fed87e2a068cdae7bd41caba5"
+    sha256 "c684ee00871d6039e931291d36134d9b9d977154cdb75087c999ec9f9d1d85e0"
     # Casks not supported on Linux: https://github.com/Linuxbrew/brew/issues/742
   end
 
