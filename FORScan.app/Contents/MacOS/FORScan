@@ -64,8 +64,8 @@ on run args
         if wineExists then
             do shell script "/usr/bin/open -na 'Wine Stable' --args " & quoted form of exePath
         else
-            display dialog ¬¨
-                "Wine Stable.app not found. Install it with: brew install --cask wine-stable" ¬¨
+            display dialog ¬
+                "Wine Stable.app not found. Install it with: brew install --cask wine-stable" ¬
                 with title "Wine not installed"
         end if
     end if
