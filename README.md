@@ -25,6 +25,15 @@ brew install --no-quarantine --cask wine-stable onnimonni/tap/forscan
     - vLinker FS USB OBD2
     - OBDLink EX
 
+#### How do I use my custom version of wine?
+
+Start the application from command line:
+
+```sh
+# using the --wine= flag you can override the default 'Wine Stable.app'
+/Applications/FORScan.app/Contents/MacOS/FORScan --wine=/path/to/your/custom/wine
+```
+
 #### How do I delete FORScan completely?
 
 ```sh
